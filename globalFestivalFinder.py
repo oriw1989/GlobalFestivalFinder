@@ -8,10 +8,28 @@ import pandas as pd
 
 app = dash.Dash()
 
+df = pd.read_pickle("Data/finalEventScores.pkl")
+
+def generate_table(dataframe, max_rows=10):
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr([
+            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+        ]) for i in range(min(len(dataframe), max_rows))]
+    )
+
 app.layout = html.Div([
     html.Div([
     dcc.Input(id='my-id', value='initial value', type='text'),
     html.Div(id='my-div')
+    ]),
+
+    html.Div(children=[
+    html.H4(children='Here Are Some Events I Found For You'),
+    generate_table(df),
     ]),
 
     html.Div(
@@ -56,8 +74,7 @@ def update_output_div(input_value):
     #handle case of low results - simply leave map empty
     emptyFigure={
         'data': [{
-            'lat': df['Latitude'], 'lon': df['Longitude'], 'text': df['Event Name'] + ", " + df['City']
-            , 'type': 'scattermapbox'
+            'lat': [], 'lon': [], 'text': [], 'type': 'scattermapbox'
         }],
         'layout': {
             'mapbox': {
@@ -73,7 +90,7 @@ def update_output_div(input_value):
     }
 
     if df is None:
-        return emptyFigure 
+        return emptyFigure
 
 
 
@@ -97,6 +114,7 @@ def update_output_div(input_value):
     }
 
     return figure
+
 
 
 
