@@ -359,5 +359,10 @@ def calculateCosineSimilarityForUserSearch(eventName, cityName):
 
 def getTop10Festivals(festivalName, cityName):
     events = pd.read_pickle("Data/finalEventScores.pkl")
-    eventScore, bestFits = calculateCosineSimilarityForUserSearch(festivalName, cityName)
+    result = calculateCosineSimilarityForUserSearch(festivalName, cityName)
+
+    if result is None:
+        return None
+
+    eventScore, bestFits = result
     return events.loc[bestFits[0:10]]

@@ -51,7 +51,33 @@ app.css.append_css({
 def update_output_div(input_value):
 
     df = getTop10Festivals(input_value, "Brooklyn")
-    
+
+
+    #handle case of low results - simply leave map empty
+    emptyFigure={
+        'data': [{
+            'lat': df['Latitude'], 'lon': df['Longitude'], 'text': df['Event Name'] + ", " + df['City']
+            , 'type': 'scattermapbox'
+        }],
+        'layout': {
+            'mapbox': {
+                'accesstoken': (
+                    'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3M' +
+                    'DBpcTJ3cXR4b3owdDQwaCJ9.8jpMunbKjdq1anXwU5gxIw'
+                )
+            },
+            'margin': {
+                'l': 0, 'r': 0, 'b': 0, 't': 0
+            },
+        }
+    }
+
+    if df is None:
+        return emptyFigure 
+
+
+
+    #otherwise, populate map
     figure={
         'data': [{
             'lat': df['Latitude'], 'lon': df['Longitude'], 'text': df['Event Name'] + ", " + df['City']
