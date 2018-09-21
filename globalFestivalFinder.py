@@ -1,5 +1,5 @@
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 from festivalTools import *
@@ -10,9 +10,11 @@ app = dash.Dash()
 
 app.layout = html.Div([
     html.Div([
-    dcc.Input(id='my-id', value='initial value', type='text'),
-    html.Div(id='my-div')
+    dcc.Input(id='my-id', value='My Favorite Festival..', type='text'),
+    html.Div(id='my-div'),
+    html.Button(id='submit-button', n_clicks=0, children='Find Me A Festival!')
     ]),
+
 
     html.Div(
         className="nine columns",
@@ -46,9 +48,10 @@ app.css.append_css({
 
 @app.callback(
     Output('graph', 'figure'),
-    [Input(component_id='my-id', component_property='value')]
+    [Input('submit-button', 'n_clicks')],
+    [State(component_id='my-id', component_property='value')]
 )
-def update_output_div(input_value):
+def update_output_div(n_clicks, input_value):
 
     df = getTop10Festivals(input_value, "Brooklyn")
 
@@ -56,8 +59,7 @@ def update_output_div(input_value):
     #handle case of low results - simply leave map empty
     emptyFigure={
         'data': [{
-            'lat': df['Latitude'], 'lon': df['Longitude'], 'text': df['Event Name'] + ", " + df['City']
-            , 'type': 'scattermapbox'
+            'lat': [], 'lon': [], 'text': [], 'type': 'scattermapbox'
         }],
         'layout': {
             'mapbox': {
@@ -73,15 +75,21 @@ def update_output_div(input_value):
     }
 
     if df is None:
-        return emptyFigure 
+        return emptyFigure
 
 
 
     #otherwise, populate map
     figure={
         'data': [{
-            'lat': df['Latitude'], 'lon': df['Longitude'], 'text': df['Event Name'] + ", " + df['City']
-            , 'type': 'scattermapbox'
+            'lat': df['Latitude'], 'lon': df['Longitude'],
+            'text': df['Date'] + "<br>" + df['Event Name'] +
+            ", " + df['City'],
+            'mode':'markers',
+            'marker': dict(
+            size=11
+            ),
+            'type': 'scattermapbox'
         }],
         'layout': {
             'mapbox': {
