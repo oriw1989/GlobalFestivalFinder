@@ -7,11 +7,24 @@ import json
 import pandas as pd
 
 app = dash.Dash()
+df = []
+
+def generate_table(dataframe, max_rows=10):
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr([
+            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+        ]) for i in range(min(len(dataframe), max_rows))]
+    )
+
 
 app.layout = html.Div([
     html.Div([
     dcc.Input(id='my-id', value='My Favorite Festival..', type='text'),
-    html.Div(id='my-div', children='blah'),
+    html.Div(id='my-div'),
     html.Button(id='submit-button', n_clicks=0, children='Find Me A Festival!')
     ]),
 
@@ -37,7 +50,10 @@ app.layout = html.Div([
                 }
             }
         )
-    )
+    ),
+
+    html.Div(id='my-table'),
+
 ], className="row")
 
 
@@ -108,12 +124,12 @@ def update_output_div(n_clicks, input_value):
     return figure
 
 @app.callback(
-    Output(component_id='my-div', component_property='children'),
+    Output(component_id='my-table', component_property='children'),
     [Input('graph', 'figure')],
     [State(component_id='my-id', component_property='value')]
 )
 def update_output_div(graph_update, input_value):
-    return df.iloc[0]['Event Name']
+    return [html.H6(generate_table(df.drop(columns=['Cluster Scores', 'Latitude', 'Longitude'])))]
 
 
 if __name__ == '__main__':
