@@ -11,7 +11,7 @@ app = dash.Dash()
 app.layout = html.Div([
     html.Div([
     dcc.Input(id='my-id', value='My Favorite Festival..', type='text'),
-    html.Div(id='my-div'),
+    html.Div(id='my-div', children='blah'),
     html.Button(id='submit-button', n_clicks=0, children='Find Me A Festival!')
     ]),
 
@@ -53,6 +53,7 @@ app.css.append_css({
 )
 def update_output_div(n_clicks, input_value):
 
+    global df
     df = getTop10Festivals(input_value, "Brooklyn")
 
 
@@ -106,6 +107,13 @@ def update_output_div(n_clicks, input_value):
 
     return figure
 
+@app.callback(
+    Output(component_id='my-div', component_property='children'),
+    [Input('graph', 'figure')],
+    [State(component_id='my-id', component_property='value')]
+)
+def update_output_div(graph_update, input_value):
+    return df.iloc[0]['Event Name']
 
 
 if __name__ == '__main__':

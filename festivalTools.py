@@ -298,9 +298,9 @@ import numpy as np
 
 def calculateEuclideanDistanceForUserSearch(eventName, cityName):
 
-    tf_vectorizer = pickle.load(open('Data/tf_vectorizer.pkl', 'rb'))
-    lda = pickle.load(open('Data/lda.pkl', 'rb'))
-    clusters = pickle.load(open('Data/finalClusters.pkl', 'rb'))
+    tf_vectorizer = pickle.load(open('Data/tf_vectorizer_final.pkl', 'rb'))
+    lda = pickle.load(open('Data/lda_final.pkl', 'rb'))
+    clusters = pickle.load(open('Data/clusters_final.pkl', 'rb'))
 
     _, _, texts = grabBagOfWords_exactsearch(eventName, cityName)
 
@@ -326,9 +326,9 @@ def calculateEuclideanDistanceForUserSearch(eventName, cityName):
 
 def calculateCosineSimilarityForUserSearch(eventName, cityName):
 
-    tf_vectorizer = pickle.load(open('Data/tf_vectorizer.pkl', 'rb'))
-    lda = pickle.load(open('Data/lda.pkl', 'rb'))
-    clusters = pickle.load(open('Data/finalClusters.pkl', 'rb'))
+    tf_vectorizer = pickle.load(open('Data/tf_vectorizer_final.pkl', 'rb'))
+    lda = pickle.load(open('Data/lda_final.pkl', 'rb'))
+    clusters = pickle.load(open('Data/clusters_final.pkl', 'rb'))
 
     _, _, texts = grabBagOfWords_exactsearch(eventName, cityName)
 
@@ -358,7 +358,7 @@ def calculateCosineSimilarityForUserSearch(eventName, cityName):
 
 
 def getTop10Festivals(festivalName, cityName):
-    events = pd.read_pickle("Data/finalEventScores.pkl")
+    events = pd.read_pickle("Data/eventScores_final.pkl")
     result = calculateCosineSimilarityForUserSearch(festivalName, cityName)
 
     if result is None:
