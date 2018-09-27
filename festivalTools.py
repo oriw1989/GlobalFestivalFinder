@@ -124,7 +124,7 @@ def getEventNamesAndRedundencies(cityName, monthName="September", festivalLabel=
     #search for date and name of event
     nameAndDate = []
     for tweet in allText:
-        nameAndDate.append((capitalizationFestivalSearch(tweet, festivalLabel),
+        nameAndDate.append((findEventNameInText(tweet, keyWord=festivalLabel),
                             simpleDateSearch(tweet, monthName)[1]))
 
     #filter useless tweets
@@ -332,7 +332,7 @@ def calculateCosineSimilarityForUserSearch(eventName, cityName):
 
     _, _, texts = grabBagOfWords_exactsearch(eventName, cityName)
 
-    if (len(texts) < 5):
+    if (len(texts) < 2):
         print("Your query isn't returning enough results")
         return None
 
@@ -366,3 +366,39 @@ def getTop10Festivals(festivalName, cityName):
 
     eventScore, bestFits = result
     return events.loc[bestFits[0:10]]
+
+
+def getAllTopFestivals(festivalName, cityName):
+    events = pd.read_pickle("Data/eventScores_final.pkl")
+    result = calculateCosineSimilarityForUserSearch(festivalName, cityName)
+
+    if result is None:
+        return None
+
+    eventScore, bestFits = result
+    return events.loc[bestFits]
+
+
+import spacy
+from spacy import displacy
+from collections import Counter
+import en_core_web_sm
+nlp = en_core_web_sm.load()
+from collections import Counter
+
+def findEventNameInText(text, keyWord = "Festival"):
+    text = text[:min(len(text), 100000)]
+    doc = nlp(text)
+
+    events = []
+    for ent in doc.ents:
+        if ent.label_=='EVENT':
+            if len(ent.text.split()) > 2:
+                if ent.text.find(keyWord) > -1:
+                    events.append(ent.text.replace("The ", "").replace("the ", ""))
+
+    if(len(events) == 0):
+        return None
+
+    eventName = Counter(events).most_common()[0]
+    return(eventName[0])

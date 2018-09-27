@@ -9,16 +9,20 @@ import pandas as pd
 app = dash.Dash()
 df = []
 
-def generate_table(dataframe, max_rows=10):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+def generate_table(dataframe, max_rows=10, columnNames = True):
 
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
+    if columnNames:
+        table = [html.Tr([html.Th(col) for col in dataframe.columns])] + [html.Tr([
+                    html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+                ]) for i in range(min(len(dataframe), max_rows))]
+
+    else:
+
+        table = [html.Tr([
+                    html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+                ]) for i in range(min(len(dataframe), max_rows))]
+
+    return html.Table(table)
 
 
 app.layout = html.Div([
@@ -40,8 +44,8 @@ app.layout = html.Div([
                 'layout': {
                     'mapbox': {
                         'accesstoken': (
-                            'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3M' +
-                            'DBpcTJ3cXR4b3owdDQwaCJ9.8jpMunbKjdq1anXwU5gxIw'
+                            'pk.eyJ1Ijoib3JpdzE5ODkiLCJhIjoiY2ptNzg3OGR0MDg0MzN3bn'
+                            +'R2ZXNubjFidyJ9.4X65Eb3vkDZosAIbP9k5ZQ'
                         )
                     },
                     'margin': {
@@ -69,9 +73,12 @@ app.css.append_css({
 )
 def update_output_div(n_clicks, input_value):
 
-    global df
-    df = getTop10Festivals(input_value, "Brooklyn")
+    global topEvents
+    global bottomEvents
 
+    df = getAllTopFestivals(input_value, "Brooklyn")
+    topEvents = df[0:5]
+    bottomEvents = df[-2:]
 
     #handle case of low results - simply leave map empty
     emptyFigure={
@@ -99,10 +106,24 @@ def update_output_div(n_clicks, input_value):
     #otherwise, populate map
     figure={
         'data': [{
-            'lat': df['Latitude'], 'lon': df['Longitude'],
-            'text': df['Date'] + "<br>" + df['Event Name'] +
-            ", " + df['City'],
+            'lat': topEvents['Latitude'], 'lon': topEvents['Longitude'],
+            'text': topEvents['Date'] + "<br>" + topEvents['Event Name'] +
+            ", " + topEvents['City'],
             'mode':'markers',
+            'name': 'Go!',
+            'color': 'Blue',
+            'marker': dict(
+            size=11
+            ),
+            'type': 'scattermapbox'
+        },
+        {
+            'lat': bottomEvents['Latitude'], 'lon': bottomEvents['Longitude'],
+            'text': bottomEvents['Date'] + "<br>" + bottomEvents['Event Name'] +
+            ", " + bottomEvents['City'],
+            'mode':'markers',
+            'name': 'Do Not Go',
+            'color': 'Red',
             'marker': dict(
             size=11
             ),
@@ -129,7 +150,11 @@ def update_output_div(n_clicks, input_value):
     [State(component_id='my-id', component_property='value')]
 )
 def update_output_div(graph_update, input_value):
-    return [html.H6(generate_table(df.drop(columns=['Cluster Scores', 'Latitude', 'Longitude'])))]
+
+    return [html.H6(generate_table(topEvents.drop(columns=['Cluster Scores', 'Latitude', 'Longitude'])),
+        style={'color': 'Blue'}),
+        html.H6(generate_table(bottomEvents.drop(columns=['Cluster Scores', 'Latitude', 'Longitude']), columnNames=False),
+        style={'color': 'Orange'})]
 
 
 if __name__ == '__main__':
