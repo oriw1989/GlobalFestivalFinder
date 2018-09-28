@@ -340,6 +340,7 @@ def calculateCosineSimilarityForUserSearch(eventName, cityName):
     for text in texts:
         eventText = eventText + text
 
+    eventText = lemmatizeText(eventText)
 
     eventTF = tf_vectorizer.transform([eventText])
     eventScore = lda.transform(eventTF)
@@ -402,3 +403,32 @@ def findEventNameInText(text, keyWord = "Festival"):
 
     eventName = Counter(events).most_common()[0]
     return(eventName[0])
+
+
+
+import nltk
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+
+def get_wordnet_pos(treebank_tag):
+
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN#''
+
+def lemmatizeText(text):
+    taggedTokens = nltk.pos_tag(word_tokenize(text))
+    lemmatizer = WordNetLemmatizer()
+    lemmatizedText = ""
+    for token in taggedTokens:
+        lemmatizedText += lemmatizer.lemmatize(token[0].lower(), get_wordnet_pos(token[1])) + " "
+    return lemmatizedText

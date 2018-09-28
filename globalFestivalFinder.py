@@ -77,8 +77,8 @@ def update_output_div(n_clicks, input_value):
     global bottomEvents
 
     df = getAllTopFestivals(input_value, "Brooklyn")
-    topEvents = df[0:5]
-    bottomEvents = df[-2:]
+    topEvents = df[0:3]
+    bottomEvents = df[-21:-19]
 
     #handle case of low results - simply leave map empty
     emptyFigure={
