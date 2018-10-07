@@ -7,6 +7,9 @@ import json
 import pandas as pd
 
 app = dash.Dash()
+app.title = "Tweet2Fest"
+server = app.server
+
 df = []
 
 def generate_table(dataframe, max_rows=10, columnNames = True):
@@ -27,7 +30,7 @@ def generate_table(dataframe, max_rows=10, columnNames = True):
 
 app.layout = html.Div([
     html.Div([
-    dcc.Input(id='my-id', value='My Favorite Festival..', type='text'),
+    dcc.Input(id='my-id', placeholder='e.g.: Star Wars', type='text'),
     html.Div(id='my-div'),
     html.Button(id='submit-button', n_clicks=0, children='Find Me A Festival!')
     ]),
@@ -78,7 +81,7 @@ def update_output_div(n_clicks, input_value):
 
     df = getAllTopFestivals(input_value, "Brooklyn")
     topEvents = df[0:3]
-    bottomEvents = df[-21:-19]
+    bottomEvents = df[3:5]
 
     #handle case of low results - simply leave map empty
     emptyFigure={
@@ -122,7 +125,7 @@ def update_output_div(n_clicks, input_value):
             'text': bottomEvents['Date'] + "<br>" + bottomEvents['Event Name'] +
             ", " + bottomEvents['City'],
             'mode':'markers',
-            'name': 'Do Not Go',
+            'name': 'Maybe',
             'color': 'Red',
             'marker': dict(
             size=11
